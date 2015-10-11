@@ -1,43 +1,28 @@
-tsplit4() {
-	tmux split-window -h;
-	tmux split-window -v;
-	tmux select-pane -L;
-	tmux split-window -v;
-}
+tsplit() {
+	if [ $1 -lt 4 ]; then
+		return;
+	fi
 
-tsplit8() {
-	tmux split-window -v;
-	tsplit4;
-	tmux select-pane -U;
-	tmux select-pane -U;
-	tsplit4;
-}
+	if [ $1 -eq 4 ]; then
+		tmux split-window -h;
+		tmux split-window -v;
+		tmux select-pane -L;
+		tmux split-window -v;
+		return;
+	fi
 
-tsplit16() {
-	tmux split-window -h;
-	tsplit8;
-	tmux select-pane -L;
-	tsplit8;
-}
+	log2_odd_even=$(($(echo "l($1)/l(2)" | bc -l | xargs printf '%.0f')%2))
 
-tsplit32() {
-	tmux split-window -v;
-	tsplit16;
-	tmux select-pane -U;
-	tmux select-pane -U;
-	tsplit16;
-}
-
-tsplit64() {
-	tmux split-window -h;
-	tsplit32;
-	tmux select-pane -L;
-	tsplit32;
-}
-
-tsplit128() {
-	tmux split-window -h;
-	tsplit64;
-	tmux select-pane -L;
-	tsplit64;
+	if [ $log2_odd_even -eq 0 ]; then
+		tmux split-window -v;
+		tsplit $(($1/2));
+		tmux select-pane -U;
+		tmux select-pane -U;
+		tsplit $(($1/2));
+	else
+		tmux split-window -h;
+		tsplit $(($1/2));
+		tmux select-pane -L;
+		tsplit $(($1/2));
+	fi
 }
